@@ -32,6 +32,10 @@ const testHomeSchema=new mongoose.Schema({
     reason: {
       type: String,
       required: true
+    },
+    testSuiteName:{
+      type:String,
+      require:true
     }
   });
 

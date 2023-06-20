@@ -99,20 +99,28 @@ app.get('/v1/testGroups/', async (req, res) => {
 
 app.get('/v1/run/tests/', async (req, res) => {
     try {
-        const { testName, page, limit, parentRunId,runId} = req.query;
+        const { testName, page, limit, parentRunId,runId,testSuiteName} = req.query;
         
         var query;
-        
-        if(parentRunId){
-            query= { parentRunId: parentRunId.split('|')}
-        }else if (runId){
-            query={runId:runId.split('|')}
+        var data;
+
+        if(testName&&testSuiteName){
+            query={testName:testName,testSuiteName:testSuiteName}
+            data = await TestDataExplorerSchema.find(query);
         }
         else{
-            query = testName ? { testName: testName.split('|') } : {};
+            if(parentRunId){
+                query= { parentRunId: parentRunId.split('|')}
+            }else if (runId){
+                query={runId:runId.split('|')}
+            }
+            else{
+                query = testName ? { testName: testName.split('|') } : {};
+            }
+            data = await TestDataHomeSchema.find(query);
         }
 
-        const data = await TestDataHomeSchema.find(query);
+         
         let paginatedData = data;
         if (page && limit) {
             const startIndex = (page - 1) * limit;

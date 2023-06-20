@@ -42,6 +42,10 @@ const TestSchemaExplorer = new mongoose.Schema({
       type: Number,
       required: true
     }
+  },
+  testSuiteName:{
+    type:String,
+    require:true
   }
 });
 
