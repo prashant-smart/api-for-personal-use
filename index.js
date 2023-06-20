@@ -99,13 +99,12 @@ app.get('/v1/testGroups/', async (req, res) => {
 
 app.get('/v1/run/tests/', async (req, res) => {
     try {
-        const { testName, page, limit, testSuiteIds,runId} = req.query;
+        const { testName, page, limit, parentRunId,runId} = req.query;
         
         var query;
         
-        if(testSuiteIds){
-            
-            query= { parentRunId: testSuiteIds.split('|')}
+        if(parentRunId){
+            query= { parentRunId: parentRunId.split('|')}
         }else if (runId){
             query={runId:runId.split('|')}
         }
@@ -130,12 +129,11 @@ app.get('/v1/run/tests/', async (req, res) => {
 
 app.get('/v1/run/testSuites/', async (req, res) => {
     try {
-        const { testSuiteName, page, limit,runId,testGroupIds } = req.query;
+        const { testSuiteName, page, limit,runId,parentRunId } = req.query;
         var query;
         
-        if(testGroupIds){
-            
-            query= { parentRunId: testGroupIds.split('|')}
+        if(parentRunId){
+            query= { parentRunId: parentRunId.split('|')}
         }else if (runId){
             query={runId:runId.split('|')}
         }
