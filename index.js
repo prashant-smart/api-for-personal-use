@@ -5,9 +5,9 @@ const TestDataHomeSchema = require('./models/Home Data Schema/testDataHome')
 const TestSuitesDataHomeSchema = require('./models/Home Data Schema/testSuitesDataHome')
 const TestGroupDataHomeSchema = require('./models/Home Data Schema/testGroupsDataHome')
 
-const TestDataExplorerSchema =require('./models/Explorer Data Schema/testDataExplorer')
-const TestGroupDataExplorerSchema =require('./models/Explorer Data Schema/testGroupExplorer')
-const TestSuiteDataExplorerSchema =require('./models/Explorer Data Schema/testSuiteDataExplorer');
+const TestDataExplorerSchema = require('./models/Explorer Data Schema/testDataExplorer')
+const TestGroupDataExplorerSchema = require('./models/Explorer Data Schema/testGroupExplorer')
+const TestSuiteDataExplorerSchema = require('./models/Explorer Data Schema/testSuiteDataExplorer');
 
 const app = express()
 
@@ -19,15 +19,13 @@ const PORT = process.env.PORT || 3000;
 
 app.get('/v1/tests/', async (req, res) => {
     try {
-        const { testName, page, limit,testSuiteName} = req.query;
+        const { testName, page, limit, testSuiteName } = req.query;
 
         var query;
-        
-        if(testSuiteName){
-            const data = await TestSuiteDataExplorerSchema.find({ testSuiteName: testSuiteName.split('|') });
-            const name = data.flatMap(suite => suite.ConfiguredTest);
-            query= { testName: name }
+        if (testName && testSuiteName) {
+            query = { testName: testName, testSuiteName: testSuiteName }
         }
+
         else query = testName ? { testName: testName.split('|') } : {};
 
         const data = await TestDataExplorerSchema.find(query);
@@ -48,16 +46,16 @@ app.get('/v1/tests/', async (req, res) => {
 
 app.get('/v1/testSuites/', async (req, res) => {
     try {
-        const { testSuiteName, page, limit,testGroupName } = req.query;
+        const { testSuiteName, page, limit, testGroupName } = req.query;
 
         var query;
-        
-        if(testGroupName){
+
+        if (testGroupName) {
             const data = await TestGroupDataExplorerSchema.find({ testGroupName: testGroupName.split('|') });
             const name = data.flatMap(suite => suite.testSuiteList);
-            query= { testSuiteName: name }
+            query = { testSuiteName: name }
         }
-        else  query = testSuiteName ? { testSuiteName: testSuiteName.split('|') } : {};
+        else query = testSuiteName ? { testSuiteName: testSuiteName.split('|') } : {};
 
         const data = await TestSuiteDataExplorerSchema.find(query);
 
@@ -77,7 +75,7 @@ app.get('/v1/testSuites/', async (req, res) => {
 app.get('/v1/testGroups/', async (req, res) => {
     try {
         const { testGroupName, page, limit } = req.query;
-        const query = testGroupName ? { testGroupName:  testGroupName.split('|')  } : {};
+        const query = testGroupName ? { testGroupName: testGroupName.split('|') } : {};
 
         const data = await TestGroupDataExplorerSchema.find(query);
 
@@ -99,28 +97,18 @@ app.get('/v1/testGroups/', async (req, res) => {
 
 app.get('/v1/run/tests/', async (req, res) => {
     try {
-        const { testName, page, limit, parentRunId,runId,testSuiteName} = req.query;
-        
+        const { testName, page, limit, parentRunId, runId } = req.query;
+
         var query;
-        var data;
-
-        if(testName&&testSuiteName){
-            query={testName:testName,testSuiteName:testSuiteName}
-            data = await TestDataExplorerSchema.find(query);
+        if (parentRunId) {
+            query = { parentRunId: parentRunId.split('|') }
+        } else if (runId) {
+            query = { runId: runId.split('|') }
         }
-        else{
-            if(parentRunId){
-                query= { parentRunId: parentRunId.split('|')}
-            }else if (runId){
-                query={runId:runId.split('|')}
-            }
-            else{
-                query = testName ? { testName: testName.split('|') } : {};
-            }
-            data = await TestDataHomeSchema.find(query);
+        else {
+            query = testName ? { testName: testName.split('|') } : {};
         }
-
-         
+        const data = await TestDataHomeSchema.find(query);
         let paginatedData = data;
         if (page && limit) {
             const startIndex = (page - 1) * limit;
@@ -137,15 +125,15 @@ app.get('/v1/run/tests/', async (req, res) => {
 
 app.get('/v1/run/testSuites/', async (req, res) => {
     try {
-        const { testSuiteName, page, limit,runId,parentRunId } = req.query;
+        const { testSuiteName, page, limit, runId, parentRunId } = req.query;
         var query;
-        
-        if(parentRunId){
-            query= { parentRunId: parentRunId.split('|')}
-        }else if (runId){
-            query={runId:runId.split('|')}
+
+        if (parentRunId) {
+            query = { parentRunId: parentRunId.split('|') }
+        } else if (runId) {
+            query = { runId: runId.split('|') }
         }
-        else{
+        else {
             query = testSuiteName ? { name: testSuiteName.split('|') } : {};
         }
         const data = await TestSuitesDataHomeSchema.find(query);
@@ -165,15 +153,15 @@ app.get('/v1/run/testSuites/', async (req, res) => {
 
 app.get('/v1/run/testGroups/', async (req, res) => {
     try {
-        const { testGroupName, page, limit,runId,isCurrentlyExecuting} = req.query;
+        const { testGroupName, page, limit, runId, isCurrentlyExecuting } = req.query;
         var query;
 
-        if(isCurrentlyExecuting){
-            query={isCurrentlyExecuting:isCurrentlyExecuting}
+        if (isCurrentlyExecuting) {
+            query = { isCurrentlyExecuting: isCurrentlyExecuting }
         }
-        else if(runId){
-            query = {runId:runId};
-        }else{
+        else if (runId) {
+            query = { runId: runId };
+        } else {
             query = testGroupName ? { testGroupName: testGroupName.split('|') } : {};
         }
 
