@@ -159,10 +159,13 @@ app.get('/v1/run/testSuites/', async (req, res) => {
 
 app.get('/v1/run/testGroups/', async (req, res) => {
     try {
-        const { testGroupName, page, limit,runId } = req.query;
+        const { testGroupName, page, limit,runId,isCurrentlyExecuting} = req.query;
         var query;
 
-        if(runId){
+        if(isCurrentlyExecuting){
+            query={isCurrentlyExecuting:isCurrentlyExecuting}
+        }
+        else if(runId){
             query = {runId:runId};
         }else{
             query = testGroupName ? { testGroupName: testGroupName.split('|') } : {};
