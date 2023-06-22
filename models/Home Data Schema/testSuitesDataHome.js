@@ -15,24 +15,14 @@ const testSuitesSchema = new mongoose.Schema({
     required: true
   },
   startDate: {
-    date: {
-      type: String,
-      required: true
-    },
-    time: {
-      type: String,
-      required: true
-    }
+    type: Date,
+    required: true,
+    default: Date.now
   },
   endDate: {
-    date: {
-      type: String,
-      required: true
-    },
-    time: {
-      type: String,
-      required: true
-    }
+    type: Date,
+    required: true,
+    default: Date.now
   },
   namespaceName: {
     type: String,
@@ -47,6 +37,26 @@ const testSuitesSchema = new mongoose.Schema({
       type: Number,
       required: true
     }
+  },
+  resourcesGroup: {
+    type: String,
+    required: true
+  },
+  sasKey: {
+    type: String,
+    required: true
+  },
+  sasValue: {
+    type: String,
+    required: true
+  },
+  subscriptionId: {
+    type: String,
+    required: true
+  },
+  tags: {
+    type: [String],
+    required: true
   }
 });
 

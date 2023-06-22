@@ -7,39 +7,25 @@ const testGroupsSchema = new mongoose.Schema({
   },
   parentRunId: {
     type: String,
-    required: true
+    required: false
   },
   testRunName: {
     type: String,
     required: true
   },
   startDate: {
-    date: {
-      type: String,
-      required: true
-    },
-    time: {
-      type: String,
-      required: true
-    }
+    type: Date,
+    required: true,
+    default: Date.now
   },
   endDate: {
-    date: {
-      type: String,
-      required: true
-    },
-    time: {
-      type: String,
-      required: true
-    }
+    type: Date,
+    required: true,
+    default: Date.now
   },
   isCurrentlyExecuting: {
     type: Boolean,
     required: true
-  },
-  date: {
-    type: Date,
-    default: Date.now
   },
   testGroupName: {
     type: String,
@@ -52,8 +38,33 @@ const testGroupsSchema = new mongoose.Schema({
   testsFailedCount: {
     type: Number,
     required: true
+  },
+  nameSpace: {
+    type: String,
+    required: true
+  },
+  resourcesGroup: {
+    type: String,
+    required: true
+  },
+  sasKey: {
+    type: String,
+    required: true
+  },
+  sasValue: {
+    type: String,
+    required: true
+  },
+  subscriptionId: {
+    type: String,
+    required: true
+  },
+  tags: {
+    type: [String],
+    required: true
   }
 });
+
 
 
 const testGroupDataHomeSchema = mongoose.model('testgroups_home', testGroupsSchema);

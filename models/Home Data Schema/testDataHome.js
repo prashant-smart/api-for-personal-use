@@ -36,8 +36,31 @@ const testHomeSchema=new mongoose.Schema({
     testSuiteName:{
       type:String,
       require:true
+    },
+    nameSpace: {
+      type: String,
+      required: true
+    },
+    resourcesGroup: {
+      type: String,
+      required: true
+    },
+    sasKey: {
+      type: String,
+      required: true
+    },
+    sasValue: {
+      type: String,
+      required: true
+    },
+    subscriptionId: {
+      type: String,
+      required: true
+    },
+    tags: {
+      type: [String],
+      required: true
     }
   });
-
 const testDataHomeSchema=mongoose.model('test_home',testHomeSchema)
 module.exports=testDataHomeSchema
