@@ -8,7 +8,7 @@ const testSuitesSchema = new mongoose.Schema({
   },
   parentRunId: {
     type: String,
-    required: true
+    required: false
   },
   name: {
     type: String,

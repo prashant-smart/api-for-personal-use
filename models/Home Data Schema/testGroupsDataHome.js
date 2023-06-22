@@ -38,30 +38,6 @@ const testGroupsSchema = new mongoose.Schema({
   testsFailedCount: {
     type: Number,
     required: true
-  },
-  nameSpace: {
-    type: String,
-    required: true
-  },
-  resourcesGroup: {
-    type: String,
-    required: true
-  },
-  sasKey: {
-    type: String,
-    required: true
-  },
-  sasValue: {
-    type: String,
-    required: true
-  },
-  subscriptionId: {
-    type: String,
-    required: true
-  },
-  tags: {
-    type: [String],
-    required: true
   }
 });
 

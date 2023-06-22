@@ -101,54 +101,55 @@ app.get("/v1/testGroups/", async (req, res) => {
 async function addTestsuites(
   testSuiteNames,
   parentRunId,
-  nameSpace,
-  resourcesGroup,
-  sasKey,
-  sasValue,
-  subscriptionId,
-  tags,
   pass,
   fail
 ) {
-    testSuiteNames.forEach(async (name) => {
+
+  for (const key in testSuiteNames) {
+    if (testSuiteNames.hasOwnProperty(key)) {
+      const value = testSuiteNames[key];
       const runId = uuidv4();
+
       const newTestSuites = new TestSuitesDataHomeSchema({
         runId,
         parentRunId: parentRunId,
-        name,
+        name:key,
         startDate: Date.now,
         endDate: Date.now,
-        namespaceName: nameSpace,
+        namespaceName: value.nameSpace,
         pass_fail: {
           pass,
           fail,
         },
-        resourcesGroup,
-        sasKey,
-        sasValue,
-        subscriptionId,
-        tags
+        resourcesGroup:value.resourcesGroup,
+        sasKey:value.sasKey,
+        sasValue:value.sasValue,
+        subscriptionId:value.subscriptionId,
+        tags:value.tags
       });
       await newTestSuites.save();
 
-      var query = { testSuiteName: name };
+      var query = { testSuiteName: key };
       const data = await TestSuiteDataExplorerSchema.find(query);
 
       if (data.length) {
         var testsNames = data[0].ConfiguredTest;
         await addTests(
-          testsNames,
           runId,
-          nameSpace,
-          resourcesGroup,
-          sasKey,
-          sasValue,
-          subscriptionId,
-          tags,
-          name
+          testsNames,
+          value.nameSpace,
+          value.resourcesGroup,
+          value.sasKey,
+          value.sasValue,
+          value.subscriptionId,
+          value.tags,
+          key
         );
       }
-    });
+
+    }
+  }
+  
   
 }
 
@@ -164,8 +165,8 @@ function getRandomBoolean() {
 }
 
 async function addTests(
-  testsNames,
   parentRunId,
+  testsNames,
   nameSpace,
   resourcesGroup,
   sasKey,
@@ -177,7 +178,7 @@ async function addTests(
   
     testsNames.forEach(async (testName) => {
       const newTests = new TestDataHomeSchema({
-        parentRunId: parentRunId,
+        parentRunId,
         runId: uuidv4(),
         testName: testName,
         workload: {
@@ -200,30 +201,39 @@ async function addTests(
     
 }
 
+
+
+
+
 app.post("/v1/tests", async (req, res) => {
   try {
     const {
-      testsNames,
-      parentRunId,
-      nameSpace,
-      resourcesGroup,
-      sasKey,
-      sasValue,
-      subscriptionId,
-      tags,
-      testSuiteName,
+      testData
     } = req.body;
-    await addTests(
-      testsNames,
-      parentRunId,
-      nameSpace,
-      resourcesGroup,
-      sasKey,
-      sasValue,
-      subscriptionId,
-      tags,
-      testSuiteName
-    );
+
+    const firstEntry = Object.entries(testData)[0];
+  const firstKey = firstEntry[0];
+  const firstValue = firstEntry[1];
+
+    const newTests = new TestDataHomeSchema({
+      runId: uuidv4(),
+      testName: firstKey,
+      workload: {
+        workloadName: "Workload4",
+        workloadURL: "https://example.com/workload4",
+      },
+      isFailed: getRandomBoolean(),
+      reason:
+        "An unexpected error occurred while processing your request. Please try again later or contact support for assistance. Error code: 123456789",
+      nameSpace:firstValue.nameSpace,
+      resourcesGroup:firstValue.resourcesGroup,
+      sasKey:firstValue.sasKey,
+      sasValue:firstValue.sasValue,
+      subscriptionId:firstValue.subscriptionId,
+      tags:firstValue.tags
+    });
+    await newTests.save();
+
     res.status(201).json({ message: "saved!!!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -233,30 +243,36 @@ app.post("/v1/tests", async (req, res) => {
 app.post("/v1/testSuites", async (req, res) => {
   try {
     const {
-      testSuiteNames,
-      parentRunId,
-      nameSpace,
-      resourcesGroup,
-      sasKey,
-      sasValue,
-      subscriptionId,
-      tags,
-      testsPassedCount,
-      testsFailedCount,
+      testSuiteName,
+      testSuiteMetaData,
+      testNames
     } = req.body;
 
-    await addTestsuites(
-      testSuiteNames,
-      parentRunId,
-      nameSpace,
-      resourcesGroup,
-      sasKey,
-      sasValue,
-      subscriptionId,
-      tags,
-      testsPassedCount,
-      testsFailedCount
-    );
+    
+    const runId = uuidv4();
+    var val = Math.floor(Math.random() * 30) + 1;
+    const value=testSuiteMetaData[`${testSuiteName}`];
+    const newTestSuites = new TestSuitesDataHomeSchema({
+      runId,
+      name:testSuiteName,
+      startDate: Date.now,
+      endDate: Date.now,
+      namespaceName: value.nameSpace,
+      pass_fail: {
+        pass:val,
+        fail:30-val
+      },
+      resourcesGroup:value.resourcesGroup,
+      sasKey:value.sasKey,
+      sasValue:value.sasValue,
+      subscriptionId:value.subscriptionId,
+      tags:value.tags
+    });
+    await newTestSuites.save();
+
+    console.log(value)
+
+    await addTests(runId,testNames,value.nameSpace,value.resourcesGroup,value.sasKey,value.sasValue,value.subscriptionId,value.tags,value.testSuiteName);
     res.status(201).json({ message: "saved!!!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -267,53 +283,36 @@ app.post("/v1/testGroups", async (req, res) => {
   try {
     const {
       testRunName,
-      testSuiteNames,
       testGroupName,
-      nameSpace,
-      resourcesGroup,
-      sasKey,
-      sasValue,
-      subscriptionId,
-      tags,
+      testSuteMetaData,
+      isCurrentlyExecuting
     } = req.body;
 
     var val = Math.floor(Math.random() * 30) + 1;
     var runId = uuidv4();
-    var startDate = (endDate = Date.now);
+    var startDate = endDate = Date.now;
 
     const newTestGroup = new TestGroupDataHomeSchema({
       runId,
       testRunName,
       startDate,
       endDate,
-      isCurrentlyExecuting: false,
+      isCurrentlyExecuting,
       testGroupName,
       testsPassedCount: val,
-      testsFailedCount: 30 - val,
-      nameSpace,
-      resourcesGroup,
-      sasKey,
-      sasValue,
-      subscriptionId,
-      tags
+      testsFailedCount: 30 - val
     });
 
     await newTestGroup.save();
 
     await addTestsuites(
-      testSuiteNames,
+      testSuteMetaData,
       runId,
-      nameSpace,
-      resourcesGroup,
-      sasKey,
-      sasValue,
-      subscriptionId,
-      tags,
       val,
       30 - val
     );
 
-    res.status(201).json("saved!!!");
+    res.status(201).json(runId);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

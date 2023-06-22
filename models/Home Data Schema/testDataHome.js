@@ -5,7 +5,7 @@ const { boolean } = require('webidl-conversions');
 const testHomeSchema=new mongoose.Schema({
     parentRunId: {
       type: String,
-      required: true
+      required: false
     },
     runId: {
       type: String,
@@ -35,7 +35,7 @@ const testHomeSchema=new mongoose.Schema({
     },
     testSuiteName:{
       type:String,
-      require:true
+      require:false
     },
     nameSpace: {
       type: String,
