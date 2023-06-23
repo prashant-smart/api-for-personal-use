@@ -127,7 +127,6 @@ async function addTestsuites(
         subscriptionId:value.subscriptionId,
         tags:value.tags
       });
-      await newTestSuites.save();
 
       var query = { testSuiteName: key };
       const data = await TestSuiteDataExplorerSchema.find(query);
@@ -146,10 +145,10 @@ async function addTestsuites(
           key
         );
       }
-
+      await newTestSuites.save();
     }
   }
-  
+  console.log("TEstSuites")
   
 }
 
@@ -198,7 +197,7 @@ async function addTests(
       });
       await newTests.save();
     });
-    
+    console.log("test")
 }
 
 
@@ -268,11 +267,8 @@ app.post("/v1/testSuites", async (req, res) => {
       subscriptionId:value.subscriptionId,
       tags:value.tags
     });
-    await newTestSuites.save();
-
-    console.log(value)
-
     await addTests(runId,testNames,value.nameSpace,value.resourcesGroup,value.sasKey,value.sasValue,value.subscriptionId,value.tags,value.testSuiteName);
+    await newTestSuites.save();
     res.status(201).json({ message: "saved!!!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -302,8 +298,7 @@ app.post("/v1/testGroups", async (req, res) => {
       testsPassedCount: val,
       testsFailedCount: 30 - val
     });
-
-    await newTestGroup.save();
+    console.log(newTestGroup)
 
     await addTestsuites(
       testSuteMetaData,
@@ -311,6 +306,8 @@ app.post("/v1/testGroups", async (req, res) => {
       val,
       30 - val
     );
+    console.log("testGroups")
+    await newTestGroup.save();
 
     res.status(201).json(runId);
   } catch (error) {

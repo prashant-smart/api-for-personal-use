@@ -56,7 +56,7 @@ const testSuitesSchema = new mongoose.Schema({
   },
   tags: {
     type: [String],
-    required: true
+    required: false
   }
 });
 

@@ -59,7 +59,7 @@ const testHomeSchema=new mongoose.Schema({
     },
     tags: {
       type: [String],
-      required: true
+      required: false
     }
   });
 const testDataHomeSchema=mongoose.model('test_home',testHomeSchema)
