@@ -298,7 +298,6 @@ app.post("/v1/testGroups", async (req, res) => {
       testsPassedCount: val,
       testsFailedCount: 30 - val
     });
-    console.log(newTestGroup)
 
     await addTestsuites(
       testSuteMetaData,
