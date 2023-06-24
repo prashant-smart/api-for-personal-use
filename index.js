@@ -106,7 +106,6 @@ async function addTestsuites(
 ) {
 
   for (const key in testSuiteNames) {
-    if (testSuiteNames.hasOwnProperty(key)) {
       const value = testSuiteNames[key];
       const runId = uuidv4();
 
@@ -130,7 +129,7 @@ async function addTestsuites(
 
       var query = { testSuiteName: key };
       const data = await TestSuiteDataExplorerSchema.find(query);
-
+      console.log(data)
       if (data.length) {
         var testsNames = data[0].ConfiguredTest;
         await addTests(
@@ -146,9 +145,10 @@ async function addTestsuites(
         );
       }
       await newTestSuites.save();
-    }
+      console.log("testSuites")
+    
   }
-  console.log("TEstSuites")
+  
   
 }
 
@@ -267,9 +267,10 @@ app.post("/v1/testSuites", async (req, res) => {
       subscriptionId:value.subscriptionId,
       tags:value.tags
     });
-    await addTests(runId,testNames,value.nameSpace,value.resourcesGroup,value.sasKey,value.sasValue,value.subscriptionId,value.tags,value.testSuiteName);
+    console.log("testSuiteName",value)
+    await addTests(runId,testNames,value.nameSpace,value.resourcesGroup,value.sasKey,value.sasValue,value.subscriptionId,value.tags,testSuiteName);
     await newTestSuites.save();
-    res.status(201).json({ message: "saved!!!" });
+    res.status(201).json(runId );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -298,7 +299,7 @@ app.post("/v1/testGroups", async (req, res) => {
       testsPassedCount: val,
       testsFailedCount: 30 - val
     });
-
+    console.log(testSuteMetaData)
     await addTestsuites(
       testSuteMetaData,
       runId,
@@ -386,8 +387,11 @@ app.get("/v1/run/testGroups/", async (req, res) => {
 
     let paginatedData = data;
     if (page && limit) {
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
+      const pageInt=Number(page)
+      const limitInt=Number(limit)
+      const startIndex = (pageInt - 1) * limitInt;
+      const endIndex = startIndex + limitInt;
+      console.log(startIndex,endIndex,data.length-1)
       paginatedData = data.slice(startIndex, endIndex);
     }
     res.status(200).json(paginatedData);
