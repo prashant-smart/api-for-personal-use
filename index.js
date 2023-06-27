@@ -129,7 +129,6 @@ async function addTestsuites(
 
       var query = { testSuiteName: key };
       const data = await TestSuiteDataExplorerSchema.find(query);
-      console.log(data)
       if (data.length) {
         var testsNames = data[0].ConfiguredTest;
         await addTests(
@@ -175,11 +174,12 @@ async function addTests(
   testSuiteName
 ) {
   
-    testsNames.forEach(async (testName) => {
+  console.log(testsNames)
+    testsNames.forEach(async (elm) => {
       const newTests = new TestDataHomeSchema({
         parentRunId,
         runId: uuidv4(),
-        testName: testName,
+        testName: (elm.testName?elm.testName:elm),
         workload: {
           workloadName: "Workload4",
           workloadURL: "https://example.com/workload4",
@@ -195,6 +195,7 @@ async function addTests(
         subscriptionId,
         tags
       });
+      
       await newTests.save();
     });
     console.log("test")
@@ -207,13 +208,12 @@ async function addTests(
 app.post("/v1/tests", async (req, res) => {
   try {
     const {
-      testData
+      metaData
     } = req.body;
 
-    const firstEntry = Object.entries(testData)[0];
+    const firstEntry = Object.entries(metaData)[0];
   const firstKey = firstEntry[0];
   const firstValue = firstEntry[1];
-
     const newTests = new TestDataHomeSchema({
       runId: uuidv4(),
       testName: firstKey,
@@ -242,15 +242,14 @@ app.post("/v1/tests", async (req, res) => {
 app.post("/v1/testSuites", async (req, res) => {
   try {
     const {
-      testSuiteName,
-      testSuiteMetaData,
-      testNames
+      metaData
     } = req.body;
 
     
     const runId = uuidv4();
+    const testSuiteName= Object.keys(metaData)[0]
     var val = Math.floor(Math.random() * 30) + 1;
-    const value=testSuiteMetaData[`${testSuiteName}`];
+    const value=metaData[`${testSuiteName}`];
     const newTestSuites = new TestSuitesDataHomeSchema({
       runId,
       name:testSuiteName,
@@ -267,7 +266,9 @@ app.post("/v1/testSuites", async (req, res) => {
       subscriptionId:value.subscriptionId,
       tags:value.tags
     });
-    console.log("testSuiteName",value)
+    var query;
+    query = { testSuiteName: testSuiteName };
+    const testNames = await TestDataExplorerSchema.find(query);
     await addTests(runId,testNames,value.nameSpace,value.resourcesGroup,value.sasKey,value.sasValue,value.subscriptionId,value.tags,testSuiteName);
     await newTestSuites.save();
     res.status(201).json(runId );
@@ -281,8 +282,7 @@ app.post("/v1/testGroups", async (req, res) => {
     const {
       testRunName,
       testGroupName,
-      testSuteMetaData,
-      isCurrentlyExecuting
+      metaData
     } = req.body;
 
     var val = Math.floor(Math.random() * 30) + 1;
@@ -294,14 +294,14 @@ app.post("/v1/testGroups", async (req, res) => {
       testRunName,
       startDate,
       endDate,
-      isCurrentlyExecuting,
+      isCurrentlyExecuting:true,
       testGroupName,
       testsPassedCount: val,
       testsFailedCount: 30 - val
     });
-    console.log(testSuteMetaData)
+
     await addTestsuites(
-      testSuteMetaData,
+      metaData,
       runId,
       val,
       30 - val
@@ -391,7 +391,6 @@ app.get("/v1/run/testGroups/", async (req, res) => {
       const limitInt=Number(limit)
       const startIndex = (pageInt - 1) * limitInt;
       const endIndex = startIndex + limitInt;
-      console.log(startIndex,endIndex,data.length-1)
       paginatedData = data.slice(startIndex, endIndex);
     }
     res.status(200).json(paginatedData);
