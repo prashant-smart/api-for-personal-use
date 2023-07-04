@@ -33,6 +33,16 @@ const testHomeSchema=new mongoose.Schema({
       type: String,
       required: true
     },
+    startDate: {
+      type: Date,
+      required: true,
+      default: Date.now
+    },
+    endDate: {
+      type: Date,
+      required: true,
+      default: Date.now
+    },
     testSuiteName:{
       type:String,
       require:false
