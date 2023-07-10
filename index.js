@@ -23,14 +23,16 @@ app.use(express.json());
 app.get("/v1/tests/", async (req, res) => {
   try {
     const { testName, page, limit, testSuiteName } = req.query;
-
+    console.log(testName,testSuiteName)
     var query;
     if (testName && testSuiteName) {
       query = { testName: testName, testSuiteName: testSuiteName };
+    }else if(testSuiteName){
+      query = testSuiteName ? { testSuiteName: testSuiteName.split("|") } : {};
     } else query = testName ? { testName: testName.split("|") } : {};
 
     const data = await TestDataExplorerSchema.find(query);
-
+    console.log(data,query)
     let paginatedData = data;
     if (page && limit) {
       const startIndex = (page - 1) * limit;
@@ -176,7 +178,7 @@ async function addTests(
       },
       isFailed: getRandomBoolean(),
       reason:
-        "An unexpected error occurred while processing your request. Please try again later or contact support for assistance. Error code: 123456789",
+      "AverageLatency(Expected:20, Current:55.86) P99Latency(Expected:40, Current:205.28) Throughput(Expected:2500, Current:872.0) ",
       startDate: Date.now,
       endDate: Date.now,
       testSuiteName,
@@ -209,7 +211,7 @@ app.post("/v1/tests", async (req, res) => {
       },
       isFailed: getRandomBoolean(),
       reason:
-        "An unexpected error occurred while processing your request. Please try again later or contact support for assistance. Error code: 123456789",
+        "AverageLatency(Expected:20, Current:55.86) P99Latency(Expected:40, Current:205.28) Throughput(Expected:2500, Current:872.0) ",
       startDate: Date.now,
       endDate: Date.now,
       nameSpace: firstValue.nameSpace,
