@@ -317,7 +317,8 @@ app.get("/v1/run/tests/", async (req, res) => {
     } else {
       query = testName ? { testName: testName.split("|") } : {};
     }
-    const data = await TestDataHomeSchema.find(query);
+     data = await TestDataHomeSchema.find(query);
+    data=data.reverse()
     let paginatedData = data;
     if (page && limit) {
       const startIndex = (page - 1) * limit;
@@ -343,7 +344,7 @@ app.get("/v1/run/testSuites/", async (req, res) => {
     } else {
       query = testSuiteName ? { name: testSuiteName.split("|") } : {};
     }
-    const data = await TestSuitesDataHomeSchema.find(query);
+    const data = (await TestSuitesDataHomeSchema.find(query)).reverse();
     let paginatedData = data;
     if (page && limit) {
       const startIndex = (page - 1) * limit;
@@ -371,7 +372,7 @@ app.get("/v1/run/testGroups/", async (req, res) => {
       query = testGroupName ? { testGroupName: testGroupName.split("|") } : {};
     }
 
-    const data = await TestGroupDataHomeSchema.find(query);
+    const data = (await TestGroupDataHomeSchema.find(query)).reverse();
 
     let paginatedData = data;
     if (page && limit) {
