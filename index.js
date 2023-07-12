@@ -216,7 +216,7 @@ app.post("/v1/tests", async (req, res) => {
       tags: firstValue.Tags,
     });
     await newTests.save();
-    res.status(201).json({ message: "saved!!!" });
+    res.status(201).json({ message: "saved!!!",testName:firstKey });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
