@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const testSuitesSchema = new mongoose.Schema({
-  
   runId: {
     type: String,
     required: true
@@ -10,7 +9,7 @@ const testSuitesSchema = new mongoose.Schema({
     type: String,
     required: false
   },
-  name: {
+  testSuiteName: {
     type: String,
     required: true
   },
@@ -24,19 +23,17 @@ const testSuitesSchema = new mongoose.Schema({
     required: true,
     default: Date.now
   },
-  namespaceName: {
+  nameSpace: {
     type: String,
     required: true
   },
-  pass_fail: {
-    pass: {
-      type: Number,
-      required: true
-    },
-    fail: {
-      type: Number,
-      required: true
-    }
+  testsPassedCount: {
+    type: Number,
+    required: true
+  },
+  testsFailedCount: {
+    type: Number,
+    required: true
   },
   resourcesGroup: {
     type: String,

@@ -23,7 +23,6 @@ app.use(express.json());
 app.get("/v1/tests/", async (req, res) => {
   try {
     const { testName, page, limit, testSuiteName } = req.query;
-    console.log(testName,testSuiteName)
     var query;
     if (testName && testSuiteName) {
       query = { testName: testName, testSuiteName: testSuiteName };
@@ -32,7 +31,6 @@ app.get("/v1/tests/", async (req, res) => {
     } else query = testName ? { testName: testName.split("|") } : {};
 
     const data = await TestDataExplorerSchema.find(query);
-    console.log(data,query)
     let paginatedData = data;
     if (page && limit) {
       const startIndex = (page - 1) * limit;
@@ -104,23 +102,20 @@ async function addTestsuites(testSuiteNames, parentRunId, pass, fail) {
   for (const key in testSuiteNames) {
     const value = testSuiteNames[key];
     const runId = uuidv4();
-
     const newTestSuites = new TestSuitesDataHomeSchema({
       runId,
       parentRunId: parentRunId,
-      name: key,
+      testSuiteName: key,
       startDate: Date.now,
       endDate: Date.now,
-      namespaceName: value.nameSpace,
-      pass_fail: {
-        pass,
-        fail,
-      },
-      resourcesGroup: value.resourcesGroup,
-      sasKey: value.sasKey,
-      sasValue: value.sasValue,
-      subscriptionId: value.subscriptionId,
-      tags: value.tags,
+      nameSpace: value.NameSpace,
+      testsPassedCount:pass,
+      testsFailedCount:fail,
+      resourcesGroup: value.ResourcesGroup,
+      sasKey: value.SasKey,
+      sasValue: value.SasValue,
+      subscriptionId: value.SubscriptionId,
+      tags: value.Tags,
     });
 
     var query = { testSuiteName: key };
@@ -130,12 +125,12 @@ async function addTestsuites(testSuiteNames, parentRunId, pass, fail) {
       await addTests(
         runId,
         testsNames,
-        value.nameSpace,
-        value.resourcesGroup,
-        value.sasKey,
-        value.sasValue,
-        value.subscriptionId,
-        value.tags,
+        value.NameSpace,
+        value.ResourcesGroup,
+        value.SasKey,
+        value.SasValue,
+        value.SubscriptionId,
+        value.Tags,
         key
       );
     }
@@ -166,7 +161,6 @@ async function addTests(
   tags,
   testSuiteName
 ) {
-  console.log(testsNames);
   testsNames.forEach(async (elm) => {
     const newTests = new TestDataHomeSchema({
       parentRunId,
@@ -214,15 +208,14 @@ app.post("/v1/tests", async (req, res) => {
         "AverageLatency(Expected:20, Current:55.86) P99Latency(Expected:40, Current:205.28) Throughput(Expected:2500, Current:872.0) ",
       startDate: Date.now,
       endDate: Date.now,
-      nameSpace: firstValue.nameSpace,
-      resourcesGroup: firstValue.resourcesGroup,
-      sasKey: firstValue.sasKey,
-      sasValue: firstValue.sasValue,
-      subscriptionId: firstValue.subscriptionId,
-      tags: firstValue.tags,
+      nameSpace: firstValue.NameSpace,
+      resourcesGroup: firstValue.ResourcesGroup,
+      sasKey: firstValue.SasKey,
+      sasValue: firstValue.SasValue,
+      subscriptionId: firstValue.SubscriptionId,
+      tags: firstValue.Tags,
     });
     await newTests.save();
-    console.log(newTests)
     res.status(201).json({ message: "saved!!!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -232,25 +225,23 @@ app.post("/v1/tests", async (req, res) => {
 app.post("/v1/testSuites", async (req, res) => {
   try {
     const { metaData } = req.body;
-
+    console.log(metaData)
     const runId = uuidv4();
     const testSuiteName = Object.keys(metaData)[0];
     var val = Math.floor(Math.random() * 30) + 1;
     const value = metaData[`${testSuiteName}`];
     const newTestSuites = new TestSuitesDataHomeSchema({
       runId,
-      name: testSuiteName,
+      testSuiteName: testSuiteName,
       startDate: Date.now,
       endDate: Date.now,
-      namespaceName: value.nameSpace,
-      pass_fail: {
-        pass: val,
-        fail: 30 - val,
-      },
-      resourcesGroup: value.resourcesGroup,
-      sasKey: value.sasKey,
-      sasValue: value.sasValue,
-      subscriptionId: value.subscriptionId,
+      nameSpace: value.NameSpace,
+      testsPassedCount:val,
+      testsFailedCount:30-val,
+      resourcesGroup: value.ResourcesGroup,
+      sasKey: value.SasKey,
+      sasValue: value.SasValue,
+      subscriptionId: value.SubscriptionId,
       tags: value.tags,
     });
     var query;
@@ -259,12 +250,12 @@ app.post("/v1/testSuites", async (req, res) => {
     await addTests(
       runId,
       testNames,
-      value.nameSpace,
-      value.resourcesGroup,
-      value.sasKey,
-      value.sasValue,
-      value.subscriptionId,
-      value.tags,
+      value.NameSpace,
+      value.ResourcesGroup,
+      value.SasKey,
+      value.SasValue,
+      value.SubscriptionId,
+      value.Tags,
       testSuiteName
     );
     await newTestSuites.save();
@@ -276,19 +267,18 @@ app.post("/v1/testSuites", async (req, res) => {
 
 app.post("/v1/testGroups", async (req, res) => {
   try {
-    const { testRunName, testGroupName, metaData } = req.body;
-
+    const { TestRunName, TestGroupName, metaData } = req.body;
     var val = Math.floor(Math.random() * 30) + 1;
     var runId = uuidv4();
-    var startDate = (endDate = Date.now);
-
+    
+    console.log(Date.now)
     const newTestGroup = new TestGroupDataHomeSchema({
       runId,
-      testRunName,
-      startDate,
-      endDate,
+      testRunName:TestRunName,
+      startDate:Date.now,
+      endDate:Date.now,
       isCurrentlyExecuting: true,
-      testGroupName,
+      testGroupName:TestGroupName,
       testsPassedCount: val,
       testsFailedCount: 30 - val,
     });
@@ -304,7 +294,6 @@ app.post("/v1/testGroups", async (req, res) => {
 });
 
 // routes for home section
-
 app.get("/v1/run/tests/", async (req, res) => {
   try {
     const { testName, page, limit, parentRunId, runId } = req.query;
@@ -342,7 +331,7 @@ app.get("/v1/run/testSuites/", async (req, res) => {
     } else if (runId) {
       query = { runId: runId.split("|") };
     } else {
-      query = testSuiteName ? { name: testSuiteName.split("|") } : {};
+      query = testSuiteName ? { testSuiteName: testSuiteName.split("|") } : {};
     }
     const data = (await TestSuitesDataHomeSchema.find(query)).reverse();
     let paginatedData = data;
